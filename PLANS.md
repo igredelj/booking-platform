@@ -8,6 +8,7 @@ Build the first Bravo IBE PoC as a focused Smart Trip Builder vertical slice: se
 
 - `/Users/igor/Downloads/bravo-ibe-poc-ai-implementation-spec-v2.md`
 - `/Users/igor/Downloads/Bravo PSS - IBE PoC - UX Direction & Product Concept.docx.pdf`
+- `/Users/igor/Downloads/bravo-platform-hardening-plan.md`
 - `/Users/igor/Desktop/springdocDefault.json`
 - Existing repo context in `AGENTS.md`, `docs/ai-context.md`, `docs/architecture.md`, `apps/web`, `apps/bff`, `packages/config-schema`, and `mock-data`.
 - Figma file `SAnyvhT0Quua2cXFzzBuci`, node `4003:1118`, page/canvas `07 Screen Design`.
@@ -69,6 +70,29 @@ Out of scope for this first plan:
 - Multi-city as primary UI.
 - Production-grade repricing/session handling beyond visible placeholder notes.
 
+## Platform Hardening Assessment
+
+The hardening plan is relevant and should change the implementation order. The current repo is a useful seed, but several areas are still demo-shaped rather than platform-shaped:
+
+- Runtime configuration is still named and modeled as `tenantConfig`, with files in `mock-data/tenants/**`.
+- The frontend route graph and step labels are hard-coded in `apps/web/src/app/App.tsx` and `apps/web/src/app/steps.ts`.
+- Route guarding is one global booking-flow selector, not composition-owned flow rules.
+- The BFF exposes mock booking behavior through `MockBookingApi` instead of a provider interface.
+- Frontend/BFF contracts live as local ad hoc TypeScript/PHP shapes, not as a shared provider-neutral contract.
+- Booking state currently reflects the broader scaffold, including later funnel concepts, instead of a minimal provider-neutral trip-builder state.
+
+Architecture updates needed before heavy UI work:
+
+- Rename the conceptual runtime model from tenant config to customer experience/profile. Keep `tenant` only where it is a deployment or compatibility concern.
+- Split profile config into identity, brand, theme, content, features, composition, provider, and runtime sections.
+- Introduce a product composition registry that owns route graph, step labels, step order, shell metadata, and flow guards.
+- Define frontend-facing BFF contracts before integrating Encore/provider payloads.
+- Put mock and external provider behavior behind the same BFF provider adapter interface.
+- Keep config for values and approved capability selection only; use named extension points for behavior.
+- Normalize app error/loading contracts and keep durable Redux state provider-neutral and free of raw provider payloads or sensitive payment data.
+
+This means the first milestone should be structural: one default Bravo customer experience can run the mocked Smart Trip Builder flow through a composition registry, using provider-neutral BFF contracts and a mock provider adapter.
+
 ## Core Architecture Decisions
 
 - Build the frontend around a trip-building state machine: `search -> select_outbound -> select_return -> review_trip -> passenger_placeholder`.
@@ -76,7 +100,9 @@ Out of scope for this first plan:
 - Keep frontend models domain-focused. Do not expose the raw provider OpenAPI response shape directly to React.
 - Put external API integration behind Laravel service interfaces. The BFF should translate provider request/response DTOs into frontend-ready route, calendar, flight, fare, and summary models.
 - Keep `BOOKING_API_MODE=mock` available. External integration should be selectable through config, not required for local UI work.
-- Treat tenant branding and fare bundle presentation as white-label configuration where practical, but keep the first PoC simple and demo-ready.
+- Treat customer branding and fare bundle presentation as white-label configuration where practical, but keep the first PoC simple and demo-ready.
+- Follow the hardening rule: config chooses values, composition chooses building blocks, extensions customize approved behavior, and provider adapters isolate API quirks.
+- Do not introduce broad per-customer page/module copies as the default customization mechanism.
 
 ## External API Contract Summary
 
@@ -122,6 +148,196 @@ Provider-to-domain mapping targets:
 
 ## Task List
 
+### Phase -1: Platform Hardening Prerequisites
+
+## Task H1: Rename Tenant Config to Customer Experience Profile
+
+**Description:** Replace the conceptual `tenantConfig` model with an experience/customer profile model. Keep query-param switching for local demos, but make it resolve an experience profile rather than implying arbitrary tenant-specific behavior.
+
+**Acceptance criteria:**
+
+- [ ] Frontend config loader and schema use experience/profile terminology.
+- [ ] BFF config endpoint returns a customer experience profile.
+- [ ] Local query-param switching still works.
+- [ ] Remaining `tenant` references are explicitly deployment-specific or compatibility aliases.
+- [ ] No frontend behavior branches on a customer/tenant code.
+
+**Verification:**
+
+- [ ] Frontend config tests cover profile loading and invalid profile failure.
+- [ ] BFF tests cover default profile resolution and unknown profile handling.
+- [ ] `rg "tenant|Tenant" apps packages mock-data docs` is reviewed and remaining uses are classified.
+
+**Dependencies:** None.
+
+**Files likely touched:**
+
+- `packages/config-schema/src/index.ts`
+- `apps/web/src/features/config/tenant.ts`
+- `apps/bff/app/Http/Controllers/Api/TenantConfigController.php`
+- `mock-data/tenants/**`
+- `docs/**`
+
+**Estimated scope:** M.
+
+## Task H2: Split Experience Profile Responsibilities
+
+**Description:** Replace the single broad config shape with typed sections for identity, brand, theme, content, features, composition, provider, and runtime values.
+
+**Acceptance criteria:**
+
+- [ ] Profile schema separates `identity`, `brand`, `theme`, `content`, `features`, `composition`, `provider`, and `runtime`.
+- [ ] Composition selection is an ID/reference, not arbitrary page code in JSON.
+- [ ] Provider selection is represented as a BFF concern and not exposed as a frontend wire detail.
+- [ ] Frontend code reads profile data through named helpers instead of broad raw config access.
+
+**Verification:**
+
+- [ ] Schema tests reject unknown or malformed profile fields.
+- [ ] Example profiles validate.
+- [ ] Profile load smoke works for the default Bravo demo profile.
+
+**Dependencies:** Task H1.
+
+**Files likely touched:**
+
+- `packages/config-schema/src/index.ts`
+- `mock-data/customers/**` or renamed `mock-data/tenants/**`
+- `apps/web/src/features/config/**`
+- `apps/bff/app/Http/Controllers/Api/*Config*`
+
+**Estimated scope:** M.
+
+## Task H3: Introduce Product Composition Registry
+
+**Description:** Move route/page/flow assembly out of hard-coded app routes into a typed composition registry. The default Bravo composition should own the Smart Trip Builder route graph and be selected by the resolved experience profile.
+
+**Acceptance criteria:**
+
+- [ ] App has a `defineExperienceComposition(...)` or equivalent helper.
+- [ ] Route definitions, step labels, step order, shell metadata, and route guards are derived from the selected composition.
+- [ ] Default Bravo composition reproduces the planned Smart Trip Builder flow.
+- [ ] Unknown composition IDs fail with a clear error.
+
+**Verification:**
+
+- [ ] Frontend tests prove a profile can select the default composition.
+- [ ] Frontend tests prove missing/disabled steps are not routable.
+- [ ] Manual smoke: default profile can complete the mocked happy path.
+
+**Dependencies:** Tasks H1 and H2.
+
+**Files likely touched:**
+
+- `apps/web/src/app/App.tsx`
+- `apps/web/src/app/steps.ts`
+- `apps/web/src/components/RouteGuard.tsx`
+- `apps/web/src/components/AppLayout.tsx`
+- `apps/web/src/product-bravo/**`
+- `packages/config-schema/src/index.ts`
+
+**Estimated scope:** M.
+
+## Task H4: Define Provider-Neutral Frontend/BFF Contracts
+
+**Description:** Define request and response contracts for the frontend-facing BFF API before integrating Encore. These contracts should represent platform models, not provider wire formats.
+
+**Acceptance criteria:**
+
+- [ ] Contracts cover search criteria, routes, low-fare calendar, availability response, fare offers, trip selections, and normalized errors for the PoC.
+- [ ] Contracts live in a shared package or generated schema.
+- [ ] Frontend API client consumes the shared contract.
+- [ ] BFF controllers validate requests at the boundary.
+- [ ] Mock responses use the normalized platform contract.
+
+**Verification:**
+
+- [ ] Contract tests cover valid and invalid payloads.
+- [ ] Frontend typecheck fails if contract fields are removed or renamed.
+- [ ] BFF feature tests assert response shape for routes, calendar, and availability.
+
+**Dependencies:** Task H2.
+
+**Files likely touched:**
+
+- `packages/contracts/**`
+- `apps/web/src/services/bookingApi.ts`
+- `apps/bff/app/Http/Controllers/Api/**`
+- `apps/bff/tests/Feature/**`
+- `mock-data/platform/**`
+
+**Estimated scope:** M.
+
+## Task H5: Add BFF Provider Adapter Interfaces
+
+**Description:** Put mock data and Encore/provider calls behind the same BFF provider adapter contract.
+
+**Acceptance criteria:**
+
+- [ ] BFF has a cohesive `BookingProvider` interface or small provider interfaces for routes, calendar, availability, ancillaries, and booking.
+- [ ] `MockBookingApi` is renamed, wrapped, or replaced as a mock provider adapter.
+- [ ] Provider selection happens through Laravel configuration and dependency injection.
+- [ ] Frontend code never receives provider-specific fields.
+
+**Verification:**
+
+- [ ] BFF tests run controller assertions against the mock provider.
+- [ ] Provider failures normalize into platform error responses.
+- [ ] `rg "Encore|provider" apps/web/src` confirms provider details do not leak into frontend code.
+
+**Dependencies:** Task H4.
+
+**Files likely touched:**
+
+- `apps/bff/app/Contracts/**`
+- `apps/bff/app/Providers/**`
+- `apps/bff/app/Services/**`
+- `apps/bff/config/booking.php`
+- `apps/bff/tests/**`
+
+**Estimated scope:** M.
+
+## Task H6: Normalize Flow State, Errors, and Customization Boundaries
+
+**Description:** Separate durable booking domain state from transient UI form state, add typed frontend/BFF error contracts, and document customization surfaces before adding customer-specific behavior.
+
+**Acceptance criteria:**
+
+- [ ] Booking state stores normalized trip selections and status only.
+- [ ] Search/passenger/payment form values stay transient until submission.
+- [ ] BFF returns a consistent error shape.
+- [ ] Frontend API client maps errors into typed application errors.
+- [ ] Customization docs define assets, theme, content, features, composition, extensions, provider adapters, and last-resort overrides.
+
+**Verification:**
+
+- [ ] Reducer tests cover reset and selected-offer state.
+- [ ] Frontend tests cover profile load failure and search failure.
+- [ ] BFF tests cover validation and provider error response shapes.
+- [ ] Documentation review confirms behavior variants require named extension points and tests.
+
+**Dependencies:** Tasks H3-H5.
+
+**Files likely touched:**
+
+- `apps/web/src/features/booking/bookingSlice.ts`
+- `apps/web/src/services/bookingApi.ts`
+- `apps/web/src/pages/**`
+- `apps/bff/app/Exceptions/**`
+- `apps/bff/tests/**`
+- `docs/architecture/customization-classification.md`
+
+**Estimated scope:** M.
+
+### Checkpoint: Platform Foundation
+
+- [ ] Experience/profile terminology and schema are in place.
+- [ ] Default Bravo composition owns routes, step labels, and route guards.
+- [ ] Frontend/BFF contracts are provider-neutral.
+- [ ] Mock provider sits behind the same adapter contract planned for Encore.
+- [ ] Booking state and error handling are normalized.
+- [ ] Continue into visible Smart Trip Builder screens only after this checkpoint passes.
+
 ### Phase 0: Access and Contract Lock
 
 ## Task 1: Audit Figma Screen Blueprint Before UI Build
@@ -151,7 +367,7 @@ Provider-to-domain mapping targets:
 
 ## Task 2: Lock API Environment and Auth Assumptions
 
-**Description:** Confirm how the Laravel BFF should call the external provider API: base URL, auth headers, tenant/provider codes, sale phase, default point of sale, language, owner, provider sources, timeout policy, and whether example payloads/responses are available.
+**Description:** Confirm how the Laravel BFF should call the external provider API: base URL, auth headers, customer/provider codes, sale phase, default point of sale, language, owner, provider sources, timeout policy, and whether example payloads/responses are available.
 
 **Acceptance criteria:**
 
@@ -198,7 +414,7 @@ Provider-to-domain mapping targets:
 - [ ] `npm run typecheck -w apps/web`
 - [ ] Focused reducer/type tests where practical.
 
-**Dependencies:** Tasks 1-2 preferred, but can start from spec.
+**Dependencies:** Platform Foundation checkpoint, plus Tasks 1-2 preferred.
 
 **Files likely touched:**
 
@@ -224,7 +440,7 @@ Provider-to-domain mapping targets:
 - [ ] Mock JSON validates with local parsing.
 - [ ] BFF feature tests cover mock responses.
 
-**Dependencies:** Task 3.
+**Dependencies:** Tasks H4 and 3.
 
 **Files likely touched:**
 
@@ -236,27 +452,27 @@ Provider-to-domain mapping targets:
 
 **Estimated scope:** M.
 
-## Task 5: Align Tenant Flow Config With PoC Scope
+## Task 5: Align Experience Composition With PoC Scope
 
-**Description:** Adjust the tenant config schema and mock tenant configs so the primary booking flow can be limited to search, availability, review, and passenger placeholder for the PoC, while preserving room for later steps.
+**Description:** Adjust the experience profile and default Bravo composition so the primary booking flow is limited to search, availability, review, and passenger placeholder for the PoC, while preserving room for later product compositions.
 
 **Acceptance criteria:**
 
-- [ ] Tenant flow supports an availability step and passenger placeholder.
-- [ ] Existing tenant configs remain valid.
-- [ ] Later funnel steps can remain configured but are not part of the PoC default path.
+- [ ] Default Bravo composition supports an availability step and passenger placeholder.
+- [ ] Existing demo profiles remain valid after migration to experience/profile terminology.
+- [ ] Later funnel steps can exist in other compositions but are not part of the PoC default path.
 
 **Verification:**
 
 - [ ] `npm run typecheck`
-- [ ] Tenant config load path still works.
+- [ ] Experience profile load path still works.
 
-**Dependencies:** Task 3.
+**Dependencies:** Tasks H1-H3 and 3.
 
 **Files likely touched:**
 
 - `packages/config-schema/src/index.ts`
-- `mock-data/tenants/*/config.json`
+- `mock-data/customers/*` or migrated `mock-data/tenants/*/config.json`
 - `apps/web/src/app/steps.ts`
 - `apps/web/src/components/RouteGuard.tsx`
 
@@ -266,7 +482,7 @@ Provider-to-domain mapping targets:
 
 - [ ] Frontend types compile.
 - [ ] Mock data can represent the full round-trip PoC.
-- [ ] Tenant config can drive the reduced PoC flow.
+- [ ] Experience profile and composition can drive the reduced PoC flow.
 
 ### Phase 2: Laravel BFF Routes, Models, and Provider Adapter
 
@@ -286,7 +502,7 @@ Provider-to-domain mapping targets:
 - [ ] `cd apps/bff && php artisan test`
 - [ ] Feature tests cover happy path and validation failures.
 
-**Dependencies:** Tasks 2 and 4.
+**Dependencies:** Tasks H4-H5, 2, and 4.
 
 **Files likely touched:**
 
@@ -337,7 +553,7 @@ Provider-to-domain mapping targets:
 - [ ] BFF feature tests pass in mock mode.
 - [ ] External mode can be smoke-tested with a stub/fake HTTP response.
 
-**Dependencies:** Tasks 2, 6, and 7.
+**Dependencies:** Tasks H5, 2, 6, and 7.
 
 **Files likely touched:**
 
@@ -389,7 +605,7 @@ Provider-to-domain mapping targets:
 **Acceptance criteria:**
 
 - [ ] Client exposes `fetchRoutes`, `fetchLowFareCalendar`, and `fetchFlightOffers`.
-- [ ] Client uses the existing `X-Tenant-Id` pattern.
+- [ ] Client sends the active experience/customer identifier using the agreed compatibility header or replacement for the existing `X-Tenant-Id` pattern.
 - [ ] Error handling provides UI-friendly messages without swallowing failures.
 
 **Verification:**
@@ -397,7 +613,7 @@ Provider-to-domain mapping targets:
 - [ ] API client tests or component tests with mocked fetch.
 - [ ] `npm run typecheck -w apps/web`
 
-**Dependencies:** Task 6.
+**Dependencies:** Tasks H4 and 6.
 
 **Files likely touched:**
 
@@ -423,7 +639,7 @@ Provider-to-domain mapping targets:
 - [ ] `npm run test -w apps/web -- selectors`
 - [ ] Reducer tests cover one-way and round-trip transitions.
 
-**Dependencies:** Task 3.
+**Dependencies:** Tasks H6 and 3.
 
 **Files likely touched:**
 
@@ -798,13 +1014,13 @@ Provider-to-domain mapping targets:
 ## Open Questions
 
 - What external API base URL should the BFF use outside local Swagger `http://localhost:31380`?
-- What authentication headers, tokens, tenant/provider identifiers, owner, provider sources, point of sale, and channel values are required?
+- What authentication headers, tokens, customer/provider identifiers, owner, provider sources, point of sale, and channel values are required?
 - Can you provide one successful sample payload/response for each provider endpoint: routes, low-fare calendar, and flight offers?
 - Should BFF route names be `GET /api/flights/routes`, `POST /api/flights/calendar`, and `POST /api/flights/offers`, or should `POST /api/flights/search` remain the public availability endpoint?
 - Should the PoC use the spec's LHR/BCN route and 2-adult demo data, or Bravo-specific airport/date examples?
-- Should passenger selection support adults/children/infants per spec, or preserve the current adult/child/senior tenant feature for now?
-- Is Basic/Smart/Plus mapping standardized in Encore, or should it be tenant/provider-configured for the PoC?
-- Should the first implementation preserve old payment/confirmation pages behind feature flags, or remove them from the default tenant flow?
+- Should passenger selection support adults/children/infants per spec, or preserve the current adult/child/senior profile feature for now?
+- Is Basic/Smart/Plus mapping standardized in Encore, or should it be customer/provider-configured for the PoC?
+- Should the first implementation preserve old payment/confirmation pages behind feature flags, or remove them from the default composition?
 
 ## Minimal Acceptance Criteria
 
