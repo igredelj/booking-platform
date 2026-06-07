@@ -121,7 +121,7 @@ If current code, active docs, and this file disagree, report the mismatch. Prefe
 - The default customer experience profile is `skywing`.
 - Experience resolution lives in `apps/web/src/features/config/experience.ts`: `experience` query param first, legacy `tenant` query param next, subdomain when not on localhost, then local fallback.
 - Customer experience profiles live under `mock-data/customers/<customer>/profile.json`; legacy tenant config files may remain as compatibility evidence. Customer logos currently live under `apps/web/public/tenants/<customer>/logo.svg`.
-- Booking flow route order and step metadata live in `apps/web/src/app/steps.ts`.
+- Booking flow route components, paths, labels, and layout flags live in registered product compositions such as `apps/web/src/product-bravo/composition.tsx`; `apps/web/src/app/steps.ts` is a compatibility shim.
 - Keep route guarding behavior in `apps/web/src/components/RouteGuard.tsx`.
 - Keep booking state in Redux Toolkit under `apps/web/src/features/booking/`; use existing selectors for route availability and derived state.
 - Keep frontend API calls in `apps/web/src/services/bookingApi.ts`; the current compatibility header is `X-Tenant-Id`, but code should treat the value as the active customer/experience id.

@@ -43,11 +43,11 @@ Customer logos currently live in:
 Entry points:
 
 - `apps/web/src/main.tsx`: React root, Redux provider, browser router.
-- `apps/web/src/app/App.tsx`: experience profile loading, theme application, route tree.
+- `apps/web/src/app/App.tsx`: experience profile loading, theme application, registered composition route tree.
 - `apps/web/src/components/AppLayout.tsx`: header, navigation, optional booking progress rail.
 - `apps/web/src/components/RouteGuard.tsx`: prevents navigation to incomplete booking steps.
 
-Booking flow route mapping is in `apps/web/src/app/steps.ts`.
+Booking flow route components, paths, labels, and layout flags live in registered product compositions. The current product composition is `apps/web/src/product-bravo/composition.tsx`. Composition resolution is in `apps/web/src/app/availableCompositions.ts`; `apps/web/src/app/steps.ts` remains as a compatibility shim for older imports.
 
 Booking state is stored in Redux in `apps/web/src/features/booking/bookingSlice.ts`. Route availability rules are in `apps/web/src/features/booking/selectors.ts`.
 

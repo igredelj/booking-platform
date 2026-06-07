@@ -1,7 +1,7 @@
 import type { ExperienceProfile } from '@eebkg/config-schema';
 import { Link, Outlet, useLocation } from 'react-router';
-import { stepLabels, stepRoutes } from '../app/steps';
 import { useAppSelector } from '../app/hooks';
+import { useExperienceComposition } from '../app/compositionContext';
 import { isStepAvailable } from '../features/booking/selectors';
 
 interface AppLayoutProps {
@@ -10,9 +10,11 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ profile }: AppLayoutProps) => {
   const location = useLocation();
+  const composition = useExperienceComposition();
   const booking = useAppSelector((state) => state);
-  const isSearchPage = location.pathname === '/search';
-  const isFullBleedFlowPage = isSearchPage || location.pathname === '/flights';
+  const isSearchPage = location.pathname === composition.stepRoutes.search;
+  const currentRoute = composition.routes.find((route) => route.path === location.pathname);
+  const isFullBleedFlowPage = Boolean(currentRoute?.fullBleed);
 
   return (
     <div className="app-shell">
@@ -20,12 +22,16 @@ export const AppLayout = ({ profile }: AppLayoutProps) => {
         Skip to booking content
       </a>
       <header className="site-header">
-        <Link className="brand" to="/search" aria-label={`${profile.brand.name} booking home`}>
+        <Link
+          className="brand"
+          to={composition.stepRoutes.search}
+          aria-label={`${profile.brand.name} booking home`}
+        >
           <img src={profile.brand.logo} alt="" width="40" height="40" />
           <span>{profile.brand.name}</span>
         </Link>
         <nav className="site-nav" aria-label="Primary">
-          <Link aria-current={isSearchPage ? 'page' : undefined} to="/search">
+          <Link aria-current={isSearchPage ? 'page' : undefined} to={composition.stepRoutes.search}>
             Book
           </Link>
           <a href="#main-content">Manage</a>
@@ -41,8 +47,8 @@ export const AppLayout = ({ profile }: AppLayoutProps) => {
       <div className="booking-frame" data-search-layout={isFullBleedFlowPage}>
         <aside className="flow-panel" aria-label="Booking progress" hidden={isFullBleedFlowPage}>
           <ol className="step-list">
-            {profile.composition.steps.map((step, index) => {
-              const route = stepRoutes[step];
+            {composition.steps.map((step, index) => {
+              const route = composition.stepRoutes[step];
               const available = isStepAvailable(booking, step);
               const current = location.pathname === route;
 
@@ -62,7 +68,7 @@ export const AppLayout = ({ profile }: AppLayoutProps) => {
                     }}
                   >
                     <span className="step-index">{index + 1}</span>
-                    <span>{stepLabels[step]}</span>
+                    <span>{composition.stepLabels[step]}</span>
                   </Link>
                 </li>
               );

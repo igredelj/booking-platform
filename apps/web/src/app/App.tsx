@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { ExperienceProfile } from '@eebkg/config-schema';
 import { Navigate, Route, Routes } from 'react-router';
+import type { ExperienceComposition } from './composition';
+import { ExperienceCompositionProvider } from './compositionContext';
+import { resolveKnownExperienceComposition } from './availableCompositions';
 import { AppLayout } from '../components/AppLayout';
 import { RouteGuard } from '../components/RouteGuard';
 import { applyExperienceTheme, loadExperienceProfile } from '../features/config/experience';
-import { ConfirmationPage } from '../pages/ConfirmationPage';
-import { ExtrasPage } from '../pages/ExtrasPage';
-import { FareSelectionPage } from '../pages/FareSelectionPage';
-import { FlightSelectionPage } from '../pages/FlightSelectionPage';
-import { PassengerDetailsPage } from '../pages/PassengerDetailsPage';
-import { PaymentPage } from '../pages/PaymentPage';
-import { ReviewPage } from '../pages/ReviewPage';
-import { SearchPage } from '../pages/SearchPage';
 import { setApiExperience } from '../services/bookingApi';
 
 export const App = () => {
@@ -47,68 +42,39 @@ export const App = () => {
     );
   }
 
+  let composition: ExperienceComposition;
+
+  try {
+    composition = resolveKnownExperienceComposition(profile);
+  } catch {
+    return (
+      <main className="centered-state" role="alert">
+        <h1>Booking is unavailable</h1>
+        <p>We could not load this booking experience. Please check the experience profile.</p>
+      </main>
+    );
+  }
+
   return (
-    <Routes>
-      <Route element={<AppLayout profile={profile} />}>
-        <Route index element={<Navigate to="/search" replace />} />
-        <Route path="/search" element={<SearchPage profile={profile} />} />
-        <Route
-          path="/flights"
-          element={
-            <RouteGuard step="flight-selection">
-              <FlightSelectionPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/fares"
-          element={
-            <RouteGuard step="fare-selection">
-              <FareSelectionPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/passengers"
-          element={
-            <RouteGuard step="passenger-details">
-              <PassengerDetailsPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/extras"
-          element={
-            <RouteGuard step="extras">
-              <ExtrasPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/review"
-          element={
-            <RouteGuard step="review">
-              <ReviewPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/payment"
-          element={
-            <RouteGuard step="payment">
-              <PaymentPage />
-            </RouteGuard>
-          }
-        />
-        <Route
-          path="/confirmation"
-          element={
-            <RouteGuard step="confirmation">
-              <ConfirmationPage />
-            </RouteGuard>
-          }
-        />
-      </Route>
-    </Routes>
+    <ExperienceCompositionProvider composition={composition}>
+      <Routes>
+        <Route element={<AppLayout profile={profile} />}>
+          <Route index element={<Navigate to={composition.stepRoutes.search} replace />} />
+          {composition.routes.map((route) => (
+            <Route
+              key={route.step}
+              path={route.path}
+              element={
+                route.guarded ? (
+                  <RouteGuard step={route.step}>{route.render(profile)}</RouteGuard>
+                ) : (
+                  route.render(profile)
+                )
+              }
+            />
+          ))}
+        </Route>
+      </Routes>
+    </ExperienceCompositionProvider>
   );
 };
