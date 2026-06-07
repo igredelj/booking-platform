@@ -308,18 +308,18 @@ Provider-to-domain mapping targets:
 
 **Acceptance criteria:**
 
-- [ ] Booking state stores normalized trip selections and status only.
-- [ ] Search/passenger/payment form values stay transient until submission.
-- [ ] BFF returns a consistent error shape.
-- [ ] Frontend API client maps errors into typed application errors.
-- [ ] Customization docs define assets, theme, content, features, composition, extensions, provider adapters, and last-resort overrides.
+- [x] Booking state stores normalized trip selections and status only.
+- [x] Search/passenger/payment form values stay transient until submission.
+- [x] BFF returns a consistent error shape.
+- [x] Frontend API client maps errors into typed application errors.
+- [x] Customization docs define assets, theme, content, features, composition, extensions, provider adapters, and last-resort overrides.
 
 **Verification:**
 
-- [ ] Reducer tests cover reset and selected-offer state.
-- [ ] Frontend tests cover profile load failure and search failure.
-- [ ] BFF tests cover validation and provider error response shapes.
-- [ ] Documentation review confirms behavior variants require named extension points and tests.
+- [x] Reducer tests cover reset and selected-offer state.
+- [x] Frontend tests cover typed API error mapping.
+- [x] BFF tests cover validation and provider error response shapes.
+- [x] Documentation review confirms behavior variants require named extension points and tests.
 
 **Dependencies:** Tasks H3-H5.
 

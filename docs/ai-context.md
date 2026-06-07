@@ -55,6 +55,8 @@ API calls are in `apps/web/src/services/bookingApi.ts`. The frontend currently s
 
 Provider-neutral frontend/BFF contracts are exported from `packages/config-schema/src/index.ts`. The first platform offer contracts cover search criteria, route options, low-fare calendar fare dates, availability flight offers, fare bundles, trip selections, and normalized API errors.
 
+Customization boundaries are documented in `docs/architecture/customization-boundaries.md`. Treat profile config, assets, compositions, provider adapters, and named extensions as the supported customization surfaces.
+
 Global CSS is in `apps/web/src/styles/global.css`.
 
 ## Booking Flow Screens

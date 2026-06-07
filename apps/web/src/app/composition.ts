@@ -1,5 +1,6 @@
 import type { BookingStep, ExperienceProfile } from '@eebkg/config-schema';
 import type { ReactNode } from 'react';
+import type { BookingState } from '../features/booking/bookingSlice';
 
 export interface ExperienceRoute {
   step: BookingStep;
@@ -14,6 +15,7 @@ export interface ExperienceComposition {
   steps: readonly BookingStep[];
   stepRoutes: Record<BookingStep, string>;
   stepLabels: Record<BookingStep, string>;
+  canEnterStep: (booking: BookingState, step: BookingStep) => boolean;
   routes: readonly ExperienceRoute[];
 }
 

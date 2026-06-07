@@ -3,7 +3,8 @@ import { ArrowLeftRight, CalendarDays, MapPin, Plane, Search, UsersRound } from 
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { useAppDispatch } from '../app/hooks';
-import { setSearch, type SearchCriteria } from '../features/booking/bookingSlice';
+import { setSearch } from '../features/booking/bookingSlice';
+import type { SearchCriteria } from '@eebkg/config-schema';
 
 interface SearchPageProps {
   profile: ExperienceProfile;
@@ -18,11 +19,14 @@ export const SearchPage = ({ profile }: SearchPageProps) => {
       destination: 'AMS',
       departureDate: '2026-06-20',
       returnDate: '2026-06-27',
+      tripType: 'round-trip',
       passengers: {
         adult: 1,
         child: 0,
         senior: 0,
       },
+      directOnly: false,
+      flexibleDates: false,
     },
   });
 
@@ -49,11 +53,11 @@ export const SearchPage = ({ profile }: SearchPageProps) => {
 
           <div className="trip-toggle" role="radiogroup" aria-label="Trip type">
             <label>
-              <input type="radio" name="tripType" defaultChecked />
+              <input type="radio" value="round-trip" {...register('tripType')} />
               <span>Round trip</span>
             </label>
             <label>
-              <input type="radio" name="tripType" />
+              <input type="radio" value="one-way" {...register('tripType')} />
               <span>One way</span>
             </label>
           </div>

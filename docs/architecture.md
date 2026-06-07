@@ -13,4 +13,6 @@ Provider-neutral frontend/BFF contracts are defined in `packages/config-schema/s
 
 BFF controllers depend on `App\Services\Contracts\BookingProvider`, not on a concrete mock service. Local mock mode binds that contract to `App\Services\MockBookingProvider`; future external provider clients should implement the same contract and map provider failures into stable platform errors.
 
+Customization boundaries are documented in `docs/architecture/customization-boundaries.md`. Customer-specific behavior should use profile config, assets, registered compositions, provider adapters, or named extensions before any last-resort override.
+
 Accessibility target: WCAG 2.2 AA. The first shell includes semantic landmarks, skip links, visible focus styles, labelled forms, keyboard-friendly controls, and live regions for async state.

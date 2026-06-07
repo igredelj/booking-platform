@@ -5,6 +5,7 @@ import { markReviewed } from '../features/booking/bookingSlice';
 
 export const ReviewPage = () => {
   const booking = useAppSelector((state) => state.booking);
+  const { selection } = booking;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -36,16 +37,16 @@ export const ReviewPage = () => {
         <div>
           <dt>Flights</dt>
           <dd>
-            {booking.outboundFlightId} / {booking.inboundFlightId}
+            {selection.outboundOfferId} / {selection.returnOfferId}
           </dd>
         </div>
         <div>
           <dt>Fare</dt>
-          <dd>{booking.fareId}</dd>
+          <dd>{selection.fareBundleId}</dd>
         </div>
         <div>
           <dt>Extras</dt>
-          <dd>{booking.extras.length ? booking.extras.join(', ') : 'No extras selected'}</dd>
+          <dd>{selection.ancillaryIds.length ? selection.ancillaryIds.join(', ') : 'No extras selected'}</dd>
         </div>
       </dl>
 

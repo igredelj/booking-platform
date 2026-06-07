@@ -43,4 +43,14 @@ class TenantBookingApiTest extends TestCase
             ->assertJsonPath('flights.0.airline', 'SkyWing')
             ->assertJsonPath('flights.0.flightNumber', 'SW101');
     }
+
+    public function test_legacy_search_validation_errors_are_normalized(): void
+    {
+        $this->postJson('/api/flights/search', [
+            'origin' => 'LHR',
+        ])
+            ->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.destination.0', 'The destination field is required.');
+    }
 }

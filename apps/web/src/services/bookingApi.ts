@@ -7,6 +7,7 @@ import {
 import type {
   AvailabilityRequest,
   AvailabilityResponse,
+  ApiError,
   FlightRoutesResponse,
   LowFareCalendarRequest,
   LowFareCalendarResponse,
@@ -40,6 +41,49 @@ export interface AncillaryOption {
 
 let apiExperienceId = 'skywing';
 
+export class BookingApiError extends Error {
+  code: string;
+  status: number;
+  fields?: ApiError['error']['fields'];
+
+  constructor({
+    code,
+    fields,
+    message,
+    status,
+  }: {
+    code: string;
+    fields?: ApiError['error']['fields'];
+    message: string;
+    status: number;
+  }) {
+    super(message);
+    this.name = 'BookingApiError';
+    this.code = code;
+    this.status = status;
+    this.fields = fields;
+  }
+}
+
+export const toBookingApiError = (status: number, payload: unknown): BookingApiError => {
+  const parsedError = apiErrorSchema.safeParse(payload);
+
+  if (parsedError.success) {
+    return new BookingApiError({
+      code: parsedError.data.error.code,
+      fields: parsedError.data.error.fields,
+      message: parsedError.data.error.message,
+      status,
+    });
+  }
+
+  return new BookingApiError({
+    code: 'REQUEST_FAILED',
+    message: `Request failed: ${status}`,
+    status,
+  });
+};
+
 export const setApiExperience = (experienceId: string) => {
   apiExperienceId = experienceId;
 };
@@ -70,13 +114,7 @@ const readPlatformResponse = async <ResponseBody>(
   const payload: unknown = await response.json();
 
   if (!response.ok) {
-    const parsedError = apiErrorSchema.safeParse(payload);
-
-    if (parsedError.success) {
-      throw new Error(parsedError.data.error.message);
-    }
-
-    throw new Error(`Request failed: ${response.status}`);
+    throw toBookingApiError(response.status, payload);
   }
 
   return parse(payload);

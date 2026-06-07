@@ -13,8 +13,11 @@ export const FareSelectionPage = () => {
   const [fareId, setFareId] = useState('');
 
   useEffect(() => {
-    fetchFares(booking).then((response) => setFares(response.fares));
-  }, [booking]);
+    fetchFares({
+      outboundFlightId: booking.selection.outboundOfferId,
+      inboundFlightId: booking.selection.returnOfferId,
+    }).then((response) => setFares(response.fares));
+  }, [booking.selection.outboundOfferId, booking.selection.returnOfferId]);
 
   const submit = () => {
     dispatch(selectFare(fareId));

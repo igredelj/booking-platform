@@ -4,10 +4,10 @@ import { isStepAvailable } from './selectors';
 
 const baseState = {
   booking: {
-    passengersComplete: false,
-    extras: [],
-    reviewed: false,
-    paymentComplete: false,
+    selection: {
+      ancillaryIds: [],
+    },
+    status: 'idle',
   },
 } satisfies RootState;
 
@@ -24,7 +24,7 @@ describe('isStepAvailable', () => {
         {
           booking: {
             ...baseState.booking,
-            reviewed: true,
+            status: 'reviewed',
           },
         },
         'payment',

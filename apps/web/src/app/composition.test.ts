@@ -71,4 +71,48 @@ describe('resolveKnownExperienceComposition', () => {
   it('keeps the registry keyed by composition id', () => {
     expect(experienceCompositions['bravo-smart-trip-builder'].id).toBe('bravo-smart-trip-builder');
   });
+
+  it('uses composition-owned flow guards for route availability', () => {
+    const composition = resolveKnownExperienceComposition(profile);
+
+    expect(
+      composition.canEnterStep(
+        {
+          selection: {
+            ancillaryIds: [],
+          },
+          status: 'idle',
+        },
+        'flight-selection',
+      ),
+    ).toBe(false);
+
+    expect(
+      composition.canEnterStep(
+        {
+          search: profileSearch,
+          selection: {
+            ancillaryIds: [],
+          },
+          status: 'search_submitted',
+        },
+        'flight-selection',
+      ),
+    ).toBe(true);
+  });
 });
+
+const profileSearch = {
+  tripType: 'round-trip',
+  origin: 'LHR',
+  destination: 'BCN',
+  departureDate: '2026-07-12',
+  returnDate: '2026-07-19',
+  passengers: {
+    adult: 2,
+    child: 0,
+    senior: 0,
+  },
+  directOnly: false,
+  flexibleDates: true,
+} as const;

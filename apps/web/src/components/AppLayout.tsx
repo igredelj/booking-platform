@@ -2,7 +2,6 @@ import type { ExperienceProfile } from '@eebkg/config-schema';
 import { Link, Outlet, useLocation } from 'react-router';
 import { useAppSelector } from '../app/hooks';
 import { useExperienceComposition } from '../app/compositionContext';
-import { isStepAvailable } from '../features/booking/selectors';
 
 interface AppLayoutProps {
   profile: ExperienceProfile;
@@ -11,7 +10,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ profile }: AppLayoutProps) => {
   const location = useLocation();
   const composition = useExperienceComposition();
-  const booking = useAppSelector((state) => state);
+  const booking = useAppSelector((state) => state.booking);
   const isSearchPage = location.pathname === composition.stepRoutes.search;
   const currentRoute = composition.routes.find((route) => route.path === location.pathname);
   const isFullBleedFlowPage = Boolean(currentRoute?.fullBleed);
@@ -49,7 +48,7 @@ export const AppLayout = ({ profile }: AppLayoutProps) => {
           <ol className="step-list">
             {composition.steps.map((step, index) => {
               const route = composition.stepRoutes[step];
-              const available = isStepAvailable(booking, step);
+              const available = composition.canEnterStep(booking, step);
               const current = location.pathname === route;
 
               return (

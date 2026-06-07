@@ -1,4 +1,5 @@
 import { defineExperienceComposition } from '../app/composition';
+import { isBookingStepAvailable } from '../features/booking/selectors';
 import { ConfirmationPage } from '../pages/ConfirmationPage';
 import { ExtrasPage } from '../pages/ExtrasPage';
 import { FareSelectionPage } from '../pages/FareSelectionPage';
@@ -40,6 +41,7 @@ export const bravoSmartTripBuilderComposition = defineExperienceComposition({
     payment: 'Payment',
     confirmation: 'Confirmation',
   },
+  canEnterStep: isBookingStepAvailable,
   routes: [
     {
       step: 'search',
