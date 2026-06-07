@@ -7,12 +7,12 @@ use App\Services\MockBookingApi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class TenantConfigController extends Controller
+class ExperienceProfileController extends Controller
 {
     public function __invoke(Request $request, MockBookingApi $api): JsonResponse
     {
-        $tenantId = $request->query('tenant', 'skywing');
+        $experienceId = $request->query('experience', $request->query('tenant', 'skywing'));
 
-        return response()->json($api->experienceProfile($tenantId));
+        return response()->json($api->experienceProfile($experienceId));
     }
 }

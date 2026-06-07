@@ -8,9 +8,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class MockBookingApi
 {
+    public function experienceProfile(string $experienceId): array
+    {
+        return $this->readJson("customers/{$experienceId}/profile.json");
+    }
+
     public function tenantConfig(string $tenantId): array
     {
-        return $this->readJson("tenants/{$tenantId}/config.json");
+        return $this->experienceProfile($tenantId);
     }
 
     public function searchFlights(array $criteria, string $tenantId = 'skywing'): array

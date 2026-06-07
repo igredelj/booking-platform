@@ -1,4 +1,4 @@
-import type { TenantConfig } from '@eebkg/config-schema';
+import type { ExperienceProfile } from '@eebkg/config-schema';
 import { ArrowLeftRight, CalendarDays, MapPin, Plane, Search, UsersRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -6,10 +6,10 @@ import { useAppDispatch } from '../app/hooks';
 import { setSearch, type SearchCriteria } from '../features/booking/bookingSlice';
 
 interface SearchPageProps {
-  config: TenantConfig;
+  profile: ExperienceProfile;
 }
 
-export const SearchPage = ({ config }: SearchPageProps) => {
+export const SearchPage = ({ profile }: SearchPageProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { register, handleSubmit, formState, getValues, setValue } = useForm<SearchCriteria>({
@@ -119,7 +119,7 @@ export const SearchPage = ({ config }: SearchPageProps) => {
                   Children
                   <input type="number" min="0" {...register('passengers.child', { valueAsNumber: true, min: 0 })} />
                 </label>
-                {config.features.seniorPassenger ? (
+                {profile.features.seniorPassenger ? (
                   <label>
                     Seniors
                     <input type="number" min="0" {...register('passengers.senior', { valueAsNumber: true, min: 0 })} />

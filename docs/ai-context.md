@@ -4,35 +4,35 @@ This file is the curated context for ArchitectAI and other read-only project ana
 
 ## Product
 
-This repository contains a multi-tenant flight booking platform. The frontend is a React booking app. The backend is a Laravel backend-for-frontend, or BFF. The current backend uses mock JSON responses for local development and testing, with no database-backed booking storage.
+This repository contains a shared customer experience flight booking platform. The frontend is a React booking app. The backend is a Laravel backend-for-frontend, or BFF. The current backend uses mock JSON responses for local development and testing, with no database-backed booking storage.
 
 ## Repository Layout
 
 - `apps/web`: React frontend built with Vite, React Router, Redux Toolkit, TypeScript, and CSS.
 - `apps/bff`: Laravel BFF that validates API requests and serves mock booking responses.
-- `packages/config-schema`: shared TypeScript/Zod tenant configuration schema.
-- `mock-data`: tenant configurations and fake booking API responses.
+- `packages/config-schema`: shared TypeScript/Zod customer experience profile schema.
+- `mock-data`: customer experience profiles and fake booking API responses.
 - `docs`: architecture notes, AI context, screenshots, and verification artifacts.
 
-## Active Tenant Model
+## Active Experience Profile Model
 
-The default tenant is `skywing`.
+The default customer experience profile is `skywing`.
 
-Tenant resolution is handled in `apps/web/src/features/config/tenant.ts`:
+Experience resolution is handled in `apps/web/src/features/config/experience.ts`:
 
-- Query param wins first, for example `?tenant=acme-air`.
+- Query param wins first, for example `?experience=acme-air`; `?tenant=acme-air` remains a compatibility alias.
 - Subdomain is used when not running on localhost.
 - Local fallback is `skywing`.
 
-The Laravel tenant-config endpoint also defaults to `skywing` in `apps/bff/app/Http/Controllers/Api/TenantConfigController.php`.
+The Laravel experience-profile endpoint defaults to `skywing` in `apps/bff/app/Http/Controllers/Api/ExperienceProfileController.php`. The legacy tenant-config endpoint remains as a compatibility route.
 
-Tenant config files live in:
+Customer experience profile files live in:
 
-- `mock-data/tenants/skywing/config.json`
-- `mock-data/tenants/acme-air/config.json`
-- `mock-data/tenants/skyline/config.json`
+- `mock-data/customers/skywing/profile.json`
+- `mock-data/customers/acme-air/profile.json`
+- `mock-data/customers/skyline/profile.json`
 
-Tenant logos live in:
+Customer logos currently live in:
 
 - `apps/web/public/tenants/skywing/logo.svg`
 - `apps/web/public/tenants/acme-air/logo.svg`
@@ -43,7 +43,7 @@ Tenant logos live in:
 Entry points:
 
 - `apps/web/src/main.tsx`: React root, Redux provider, browser router.
-- `apps/web/src/app/App.tsx`: tenant config loading, theme application, route tree.
+- `apps/web/src/app/App.tsx`: experience profile loading, theme application, route tree.
 - `apps/web/src/components/AppLayout.tsx`: header, navigation, optional booking progress rail.
 - `apps/web/src/components/RouteGuard.tsx`: prevents navigation to incomplete booking steps.
 
@@ -51,7 +51,7 @@ Booking flow route mapping is in `apps/web/src/app/steps.ts`.
 
 Booking state is stored in Redux in `apps/web/src/features/booking/bookingSlice.ts`. Route availability rules are in `apps/web/src/features/booking/selectors.ts`.
 
-API calls are in `apps/web/src/services/bookingApi.ts`. The frontend sends the active tenant id to the BFF with the `X-Tenant-Id` header.
+API calls are in `apps/web/src/services/bookingApi.ts`. The frontend currently sends the active customer/experience id with the compatibility `X-Tenant-Id` header.
 
 Global CSS is in `apps/web/src/styles/global.css`.
 
@@ -76,7 +76,8 @@ API routes are defined in `apps/bff/routes/api.php`.
 
 Current endpoints:
 
-- `GET /api/tenant-config`
+- `GET /api/experience-profile`
+- `GET /api/tenant-config` compatibility route
 - `POST /api/flights/search`
 - `POST /api/fares`
 - `POST /api/ancillaries`

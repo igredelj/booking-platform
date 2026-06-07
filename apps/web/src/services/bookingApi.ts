@@ -24,18 +24,20 @@ export interface AncillaryOption {
   price: number;
 }
 
-let apiTenantId = 'skywing';
+let apiExperienceId = 'skywing';
 
-export const setApiTenant = (tenantId: string) => {
-  apiTenantId = tenantId;
+export const setApiExperience = (experienceId: string) => {
+  apiExperienceId = experienceId;
 };
+
+export const setApiTenant = setApiExperience;
 
 const postJson = async <ResponseBody>(url: string, body: unknown): Promise<ResponseBody> => {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Tenant-Id': apiTenantId,
+      'X-Tenant-Id': apiExperienceId,
     },
     body: JSON.stringify(body),
   });

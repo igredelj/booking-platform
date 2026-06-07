@@ -74,18 +74,18 @@ Proceed when the task is trivial and reversible, ambiguity can be resolved by sa
 - Web app shell and store: `apps/web/src/app/`
 - Web components: `apps/web/src/components/`
 - Web booking state: `apps/web/src/features/booking/`
-- Web tenant config: `apps/web/src/features/config/tenant.ts`
+- Web experience profile config: `apps/web/src/features/config/experience.ts`
 - Web pages: `apps/web/src/pages/`
 - Web API client: `apps/web/src/services/bookingApi.ts`
 - Web styles: `apps/web/src/styles/global.css`
-- Web public tenant assets: `apps/web/public/tenants/`
+- Web public customer assets: `apps/web/public/tenants/`
 - BFF source: `apps/bff/app/`
 - BFF API routes: `apps/bff/routes/api.php`
 - BFF controllers: `apps/bff/app/Http/Controllers/Api/`
 - BFF mock booking service: `apps/bff/app/Services/MockBookingApi.php`
 - BFF tests: `apps/bff/tests/`
 - Shared config schema: `packages/config-schema/src/`
-- Tenant configs and mock API responses: `mock-data/`
+- Customer experience profiles and mock API responses: `mock-data/`
 - Architecture and AI context docs: `docs/`
 
 ### Verified Commands
@@ -108,7 +108,7 @@ Keep this file short. Do not store broad architecture notes here.
 
 For ordinary bugfixes, small features, tests, or cleanup, do not read every doc by default. Read the touched code first, then open focused docs only when they clarify the task.
 
-For architecture-sensitive work, tenant-config changes, booking-flow changes, API contract changes, Docker changes, or agent/AI-context changes, read the active docs first:
+For architecture-sensitive work, experience-profile changes, booking-flow changes, API contract changes, Docker changes, or agent/AI-context changes, read the active docs first:
 
 1. `docs/ai-context.md`
 2. `docs/architecture.md`
@@ -118,13 +118,13 @@ If current code, active docs, and this file disagree, report the mismatch. Prefe
 
 ## 8. Repo Conventions
 
-- The default tenant is `skywing`.
-- Tenant resolution lives in `apps/web/src/features/config/tenant.ts`: query param first, subdomain when not on localhost, then local fallback.
-- Tenant config files live under `mock-data/tenants/<tenant>/config.json`; tenant logos live under `apps/web/public/tenants/<tenant>/logo.svg`.
+- The default customer experience profile is `skywing`.
+- Experience resolution lives in `apps/web/src/features/config/experience.ts`: `experience` query param first, legacy `tenant` query param next, subdomain when not on localhost, then local fallback.
+- Customer experience profiles live under `mock-data/customers/<customer>/profile.json`; legacy tenant config files may remain as compatibility evidence. Customer logos currently live under `apps/web/public/tenants/<customer>/logo.svg`.
 - Booking flow route order and step metadata live in `apps/web/src/app/steps.ts`.
 - Keep route guarding behavior in `apps/web/src/components/RouteGuard.tsx`.
 - Keep booking state in Redux Toolkit under `apps/web/src/features/booking/`; use existing selectors for route availability and derived state.
-- Keep frontend API calls in `apps/web/src/services/bookingApi.ts`; send the active tenant id with the existing `X-Tenant-Id` pattern.
+- Keep frontend API calls in `apps/web/src/services/bookingApi.ts`; the current compatibility header is `X-Tenant-Id`, but code should treat the value as the active customer/experience id.
 - Keep global visual styling in `apps/web/src/styles/global.css` unless a task creates a clearly scoped component style pattern.
 - Target WCAG 2.2 AA where practical: semantic regions, labelled controls, visible focus, keyboard-operable controls, and no text overlap or clipping.
 - BFF API endpoints belong in `apps/bff/routes/api.php` and controllers under `apps/bff/app/Http/Controllers/Api/`.
@@ -133,12 +133,12 @@ If current code, active docs, and this file disagree, report the mismatch. Prefe
 - `BOOKING_API_MODE=mock` is the intended local mode. There is no production backend API client yet unless current code says otherwise.
 - Add or update Vitest/PHPUnit coverage when behavior changes. Update screenshots/docs only when the user asks or the change materially affects documented verification.
 
-## 9. Tenant and Booking Guardrails
+## 9. Customer and Booking Guardrails
 
-- Keep tenant-specific differences data-driven through config, theme tokens, assets, content, enabled steps, and feature flags.
-- Avoid introducing tenant-specific frontend code paths unless there is an explicit named extension point or the user asks for one.
-- Provider-specific API quirks belong in the BFF/provider adapter layer, not in tenant config or page components.
-- Do not hard-code tenant IDs, mock response shapes, or booking step assumptions without checking existing config and fixtures.
+- Keep customer-specific differences data-driven through profile config, theme tokens, assets, content, composition, and approved feature flags.
+- Avoid introducing customer-specific frontend code paths unless there is an explicit named extension point or the user asks for one.
+- Provider-specific API quirks belong in the BFF/provider adapter layer, not in profile config or page components.
+- Do not hard-code customer IDs, mock response shapes, or booking step assumptions without checking existing config and fixtures.
 - Treat `mock-data` as test/development evidence, not as a source of new production rules unless the task says so.
 
 ## 10. Do Not Modify
@@ -151,7 +151,7 @@ If current code, active docs, and this file disagree, report the mismatch. Prefe
 
 ## 11. Forbidden
 
-- Do not invent tenant codes, branch names, release tags, commands, APIs, schemas, or test results.
+- Do not invent customer codes, branch names, release tags, commands, APIs, schemas, or test results.
 - Do not place internal URLs, credentials, tokens, production data, or customer-specific secrets in docs, tests, logs, examples, or final responses.
 - Do not run dependency installs, dev servers, full builds, Docker, or deployment-related commands unless needed for the task or requested.
 - Keep Docker and environment/config changes scoped and call them out clearly.

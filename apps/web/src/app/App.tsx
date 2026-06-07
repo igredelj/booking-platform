@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { TenantConfig } from '@eebkg/config-schema';
+import type { ExperienceProfile } from '@eebkg/config-schema';
 import { Navigate, Route, Routes } from 'react-router';
 import { AppLayout } from '../components/AppLayout';
 import { RouteGuard } from '../components/RouteGuard';
-import { applyTenantTheme, loadTenantConfig } from '../features/config/tenant';
+import { applyExperienceTheme, loadExperienceProfile } from '../features/config/experience';
 import { ConfirmationPage } from '../pages/ConfirmationPage';
 import { ExtrasPage } from '../pages/ExtrasPage';
 import { FareSelectionPage } from '../pages/FareSelectionPage';
@@ -12,21 +12,21 @@ import { PassengerDetailsPage } from '../pages/PassengerDetailsPage';
 import { PaymentPage } from '../pages/PaymentPage';
 import { ReviewPage } from '../pages/ReviewPage';
 import { SearchPage } from '../pages/SearchPage';
-import { setApiTenant } from '../services/bookingApi';
+import { setApiExperience } from '../services/bookingApi';
 
 export const App = () => {
-  const [config, setConfig] = useState<TenantConfig | null>(null);
+  const [profile, setProfile] = useState<ExperienceProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadTenantConfig()
-      .then((tenantConfig) => {
-        setApiTenant(tenantConfig.tenantId);
-        applyTenantTheme(tenantConfig);
-        setConfig(tenantConfig);
+    loadExperienceProfile()
+      .then((experienceProfile) => {
+        setApiExperience(experienceProfile.identity.customerId);
+        applyExperienceTheme(experienceProfile);
+        setProfile(experienceProfile);
       })
       .catch(() => {
-        setError('We could not load this booking experience. Please check the tenant configuration.');
+        setError('We could not load this booking experience. Please check the experience profile.');
       });
   }, []);
 
@@ -39,7 +39,7 @@ export const App = () => {
     );
   }
 
-  if (!config) {
+  if (!profile) {
     return (
       <main className="centered-state" aria-busy="true">
         <h1>Loading booking experience</h1>
@@ -49,9 +49,9 @@ export const App = () => {
 
   return (
     <Routes>
-      <Route element={<AppLayout config={config} />}>
+      <Route element={<AppLayout profile={profile} />}>
         <Route index element={<Navigate to="/search" replace />} />
-        <Route path="/search" element={<SearchPage config={config} />} />
+        <Route path="/search" element={<SearchPage profile={profile} />} />
         <Route
           path="/flights"
           element={

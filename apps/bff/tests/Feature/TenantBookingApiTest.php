@@ -6,11 +6,22 @@ use Tests\TestCase;
 
 class TenantBookingApiTest extends TestCase
 {
-    public function test_tenant_config_defaults_to_skywing(): void
+    public function test_experience_profile_defaults_to_skywing(): void
+    {
+        $this->getJson('/api/experience-profile')
+            ->assertOk()
+            ->assertJsonPath('identity.customerId', 'skywing')
+            ->assertJsonPath('identity.experienceId', 'skywing-default')
+            ->assertJsonPath('brand.name', 'SkyWing')
+            ->assertJsonPath('composition.id', 'bravo-smart-trip-builder')
+            ->assertJsonPath('provider.id', 'mock');
+    }
+
+    public function test_legacy_tenant_config_route_returns_experience_profile(): void
     {
         $this->getJson('/api/tenant-config')
             ->assertOk()
-            ->assertJsonPath('tenantId', 'skywing')
+            ->assertJsonPath('identity.customerId', 'skywing')
             ->assertJsonPath('brand.name', 'SkyWing');
     }
 
