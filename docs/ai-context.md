@@ -53,6 +53,8 @@ Booking state is stored in Redux in `apps/web/src/features/booking/bookingSlice.
 
 API calls are in `apps/web/src/services/bookingApi.ts`. The frontend currently sends the active customer/experience id with the compatibility `X-Tenant-Id` header.
 
+Provider-neutral frontend/BFF contracts are exported from `packages/config-schema/src/index.ts`. The first platform offer contracts cover search criteria, route options, low-fare calendar fare dates, availability flight offers, fare bundles, trip selections, and normalized API errors.
+
 Global CSS is in `apps/web/src/styles/global.css`.
 
 ## Booking Flow Screens
@@ -78,6 +80,9 @@ Current endpoints:
 
 - `GET /api/experience-profile`
 - `GET /api/tenant-config` compatibility route
+- `GET /api/flights/routes`
+- `POST /api/flights/calendar`
+- `POST /api/flights/offers`
 - `POST /api/flights/search`
 - `POST /api/fares`
 - `POST /api/ancillaries`
@@ -85,7 +90,7 @@ Current endpoints:
 
 Controllers live in `apps/bff/app/Http/Controllers/Api`.
 
-Mock booking behavior is centralized in `apps/bff/app/Services/MockBookingApi.php`. Mock JSON responses live in `mock-data/api-responses`.
+Mock booking behavior is centralized in `apps/bff/app/Services/MockBookingApi.php`. Legacy mock JSON responses live in `mock-data/api-responses`; provider-neutral platform offer fixtures live in `mock-data/platform`.
 
 `BOOKING_API_MODE=mock` is the intended local mode. There is no production backend API client yet.
 

@@ -1,0 +1,50 @@
+{
+  "routes": [
+    {
+      "id": "LHR-BCN",
+      "origin": {
+        "cityCode": "LON",
+        "cityName": "London",
+        "airports": [
+          {
+            "code": "LHR",
+            "name": "London Heathrow"
+          }
+        ]
+      },
+      "destination": {
+        "cityCode": "BCN",
+        "cityName": "Barcelona",
+        "airports": [
+          {
+            "code": "BCN",
+            "name": "Barcelona"
+          }
+        ]
+      }
+    },
+    {
+      "id": "JFK-LAX",
+      "origin": {
+        "cityCode": "NYC",
+        "cityName": "New York",
+        "airports": [
+          {
+            "code": "JFK",
+            "name": "New York JFK"
+          }
+        ]
+      },
+      "destination": {
+        "cityCode": "LAX",
+        "cityName": "Los Angeles",
+        "airports": [
+          {
+            "code": "LAX",
+            "name": "Los Angeles"
+          }
+        ]
+      }
+    }
+  ]
+}

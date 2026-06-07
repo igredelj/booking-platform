@@ -1,0 +1,129 @@
+{
+  "search": {
+    "tripType": "round-trip",
+    "origin": "LHR",
+    "destination": "BCN",
+    "departureDate": "2026-07-12",
+    "returnDate": "2026-07-19",
+    "passengers": {
+      "adult": 2,
+      "child": 0,
+      "senior": 0
+    },
+    "directOnly": false,
+    "flexibleDates": true
+  },
+  "bound": "outbound",
+  "flights": [
+    {
+      "id": "outbound-1",
+      "bound": "outbound",
+      "airlineName": "Bravo Air",
+      "flightNumber": "BR101",
+      "departure": {
+        "airportCode": "LHR",
+        "airportName": "London Heathrow",
+        "dateTime": "2026-07-12T08:15:00+01:00"
+      },
+      "arrival": {
+        "airportCode": "BCN",
+        "airportName": "Barcelona",
+        "dateTime": "2026-07-12T11:25:00+02:00"
+      },
+      "durationMinutes": 130,
+      "stops": 0,
+      "fareBundles": [
+        {
+          "id": "outbound-1-basic",
+          "name": "Basic",
+          "recommended": false,
+          "price": {
+            "amount": 149,
+            "currency": "EUR"
+          },
+          "included": ["Cabin bag"],
+          "providerReferences": {
+            "offerId": "offer-out-1-basic",
+            "flightId": "flight-out-1"
+          }
+        },
+        {
+          "id": "outbound-1-smart",
+          "name": "Smart",
+          "recommended": true,
+          "price": {
+            "amount": 189,
+            "currency": "EUR"
+          },
+          "included": ["Cabin bag", "Checked bag", "Seat selection"],
+          "providerReferences": {
+            "offerId": "offer-out-1-smart",
+            "flightId": "flight-out-1"
+          }
+        },
+        {
+          "id": "outbound-1-plus",
+          "name": "Plus",
+          "recommended": false,
+          "price": {
+            "amount": 239,
+            "currency": "EUR"
+          },
+          "included": ["Cabin bag", "Checked bag", "Seat selection", "Flexible changes"],
+          "providerReferences": {
+            "offerId": "offer-out-1-plus",
+            "flightId": "flight-out-1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "return-1",
+      "bound": "return",
+      "airlineName": "Bravo Air",
+      "flightNumber": "BR202",
+      "departure": {
+        "airportCode": "BCN",
+        "airportName": "Barcelona",
+        "dateTime": "2026-07-19T16:35:00+02:00"
+      },
+      "arrival": {
+        "airportCode": "LHR",
+        "airportName": "London Heathrow",
+        "dateTime": "2026-07-19T17:55:00+01:00"
+      },
+      "durationMinutes": 140,
+      "stops": 0,
+      "fareBundles": [
+        {
+          "id": "return-1-basic",
+          "name": "Basic",
+          "recommended": false,
+          "price": {
+            "amount": 139,
+            "currency": "EUR"
+          },
+          "included": ["Cabin bag"],
+          "providerReferences": {
+            "offerId": "offer-ret-1-basic",
+            "flightId": "flight-ret-1"
+          }
+        },
+        {
+          "id": "return-1-smart",
+          "name": "Smart",
+          "recommended": true,
+          "price": {
+            "amount": 179,
+            "currency": "EUR"
+          },
+          "included": ["Cabin bag", "Checked bag", "Seat selection"],
+          "providerReferences": {
+            "offerId": "offer-ret-1-smart",
+            "flightId": "flight-ret-1"
+          }
+        }
+      ]
+    }
+  ]
+}

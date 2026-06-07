@@ -1,3 +1,17 @@
+import {
+  apiErrorSchema,
+  availabilityResponseSchema,
+  flightRoutesResponseSchema,
+  lowFareCalendarResponseSchema,
+} from '@eebkg/config-schema';
+import type {
+  AvailabilityRequest,
+  AvailabilityResponse,
+  FlightRoutesResponse,
+  LowFareCalendarRequest,
+  LowFareCalendarResponse,
+} from '@eebkg/config-schema';
+
 export interface FlightOption {
   id: string;
   direction: 'outbound' | 'inbound';
@@ -48,6 +62,66 @@ const postJson = async <ResponseBody>(url: string, body: unknown): Promise<Respo
 
   return response.json() as Promise<ResponseBody>;
 };
+
+const readPlatformResponse = async <ResponseBody>(
+  response: Response,
+  parse: (payload: unknown) => ResponseBody,
+): Promise<ResponseBody> => {
+  const payload: unknown = await response.json();
+
+  if (!response.ok) {
+    const parsedError = apiErrorSchema.safeParse(payload);
+
+    if (parsedError.success) {
+      throw new Error(parsedError.data.error.message);
+    }
+
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  return parse(payload);
+};
+
+const getPlatformJson = async <ResponseBody>(
+  url: string,
+  parse: (payload: unknown) => ResponseBody,
+): Promise<ResponseBody> => {
+  const response = await fetch(url, {
+    headers: {
+      'X-Tenant-Id': apiExperienceId,
+    },
+  });
+
+  return readPlatformResponse(response, parse);
+};
+
+const postPlatformJson = async <ResponseBody>(
+  url: string,
+  body: unknown,
+  parse: (payload: unknown) => ResponseBody,
+): Promise<ResponseBody> => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Tenant-Id': apiExperienceId,
+    },
+    body: JSON.stringify(body),
+  });
+
+  return readPlatformResponse(response, parse);
+};
+
+export const fetchFlightRoutes = (): Promise<FlightRoutesResponse> =>
+  getPlatformJson('/api/flights/routes', flightRoutesResponseSchema.parse);
+
+export const fetchLowFareCalendar = (
+  criteria: LowFareCalendarRequest,
+): Promise<LowFareCalendarResponse> =>
+  postPlatformJson('/api/flights/calendar', criteria, lowFareCalendarResponseSchema.parse);
+
+export const fetchFlightOffers = (request: AvailabilityRequest): Promise<AvailabilityResponse> =>
+  postPlatformJson('/api/flights/offers', request, availabilityResponseSchema.parse);
 
 export const searchFlights = (criteria: unknown) =>
   postJson<{ flights: FlightOption[] }>('/api/flights/search', criteria);

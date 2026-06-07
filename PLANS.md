@@ -249,12 +249,17 @@ Provider-to-domain mapping targets:
 - [ ] Frontend API client consumes the shared contract.
 - [ ] BFF controllers validate requests at the boundary.
 - [ ] Mock responses use the normalized platform contract.
+- [x] Initial shared contracts added in `@eebkg/config-schema` for search criteria, routes, low-fare calendar, availability, fare bundles, trip selections, and normalized errors.
+- [x] Initial frontend client methods consume shared schemas for routes, calendar, and availability.
+- [x] Initial BFF routes return normalized mock platform contracts for routes, calendar, and availability.
 
 **Verification:**
 
 - [ ] Contract tests cover valid and invalid payloads.
 - [ ] Frontend typecheck fails if contract fields are removed or renamed.
 - [ ] BFF feature tests assert response shape for routes, calendar, and availability.
+- [x] `apps/web/src/services/bookingContracts.test.ts` covers valid platform contracts.
+- [x] `apps/bff/tests/Feature/PlatformOfferApiTest.php` asserts routes, calendar, availability, and normalized validation errors.
 
 **Dependencies:** Task H2.
 

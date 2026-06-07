@@ -41,6 +41,29 @@ class MockBookingApi
         return $response;
     }
 
+    public function flightRoutes(): array
+    {
+        return $this->readJson('platform/routes.json');
+    }
+
+    public function lowFareCalendar(array $criteria): array
+    {
+        return $this->readJson('platform/low-fare-calendar.json');
+    }
+
+    public function flightOffers(array $search, string $bound): array
+    {
+        $response = $this->readJson('platform/availability.json');
+        $response['search'] = $search;
+        $response['bound'] = $bound;
+        $response['flights'] = collect($response['flights'])
+            ->filter(fn (array $flight): bool => $flight['bound'] === $bound)
+            ->values()
+            ->all();
+
+        return $response;
+    }
+
     public function fares(array $selection): array
     {
         return $this->readJson('api-responses/fares.json');
