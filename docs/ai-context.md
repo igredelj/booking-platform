@@ -90,7 +90,7 @@ Current endpoints:
 
 Controllers live in `apps/bff/app/Http/Controllers/Api`.
 
-Mock booking behavior is centralized in `apps/bff/app/Services/MockBookingApi.php`. Legacy mock JSON responses live in `mock-data/api-responses`; provider-neutral platform offer fixtures live in `mock-data/platform`.
+Booking provider behavior is accessed through `apps/bff/app/Services/Contracts/BookingProvider.php`. `BOOKING_API_MODE=mock` binds the interface to `apps/bff/app/Services/MockBookingProvider.php` through Laravel dependency injection. Legacy mock JSON responses live in `mock-data/api-responses`; provider-neutral platform offer fixtures live in `mock-data/platform`.
 
 `BOOKING_API_MODE=mock` is the intended local mode. There is no production backend API client yet.
 

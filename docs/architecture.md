@@ -11,4 +11,6 @@ The React app is experience-profile-driven. Profile config controls identity, br
 
 Provider-neutral frontend/BFF contracts are defined in `packages/config-schema/src/index.ts`. The first platform offer API surface is `GET /api/flights/routes`, `POST /api/flights/calendar`, and `POST /api/flights/offers`, backed locally by `mock-data/platform`.
 
+BFF controllers depend on `App\Services\Contracts\BookingProvider`, not on a concrete mock service. Local mock mode binds that contract to `App\Services\MockBookingProvider`; future external provider clients should implement the same contract and map provider failures into stable platform errors.
+
 Accessibility target: WCAG 2.2 AA. The first shell includes semantic landmarks, skip links, visible focus styles, labelled forms, keyboard-friendly controls, and live regions for async state.

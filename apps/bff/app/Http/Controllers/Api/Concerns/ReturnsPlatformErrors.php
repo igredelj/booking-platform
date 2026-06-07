@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Concerns;
 
+use App\Services\Exceptions\BookingProviderException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -31,5 +32,15 @@ trait ReturnsPlatformErrors
                 'fields' => $exception->errors(),
             ],
         ], 422);
+    }
+
+    private function providerErrorResponse(BookingProviderException $exception): JsonResponse
+    {
+        return response()->json([
+            'error' => [
+                'code' => 'PROVIDER_ERROR',
+                'message' => 'Booking provider is unavailable.',
+            ],
+        ], 502);
     }
 }

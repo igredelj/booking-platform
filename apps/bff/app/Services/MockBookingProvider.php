@@ -2,11 +2,12 @@
 
 namespace App\Services;
 
+use App\Services\Contracts\BookingProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class MockBookingApi
+class MockBookingProvider implements BookingProvider
 {
     public function experienceProfile(string $experienceId): array
     {

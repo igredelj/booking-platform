@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Concerns\ReturnsPlatformErrors;
 use App\Http\Controllers\Controller;
-use App\Services\MockBookingApi;
+use App\Services\Contracts\BookingProvider;
+use App\Services\Exceptions\BookingProviderException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,7 @@ class LowFareCalendarController extends Controller
 {
     use ReturnsPlatformErrors;
 
-    public function __invoke(Request $request, MockBookingApi $api): JsonResponse
+    public function __invoke(Request $request, BookingProvider $provider): JsonResponse
     {
         try {
             $criteria = $this->validatePlatformPayload($request->all(), $this->searchCriteriaRules());
@@ -21,7 +22,11 @@ class LowFareCalendarController extends Controller
             return $this->validationErrorResponse($exception);
         }
 
-        return response()->json($api->lowFareCalendar($criteria));
+        try {
+            return response()->json($provider->lowFareCalendar($criteria));
+        } catch (BookingProviderException $exception) {
+            return $this->providerErrorResponse($exception);
+        }
     }
 
     private function searchCriteriaRules(): array

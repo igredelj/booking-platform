@@ -279,15 +279,15 @@ Provider-to-domain mapping targets:
 
 **Acceptance criteria:**
 
-- [ ] BFF has a cohesive `BookingProvider` interface or small provider interfaces for routes, calendar, availability, ancillaries, and booking.
-- [ ] `MockBookingApi` is renamed, wrapped, or replaced as a mock provider adapter.
-- [ ] Provider selection happens through Laravel configuration and dependency injection.
-- [ ] Frontend code never receives provider-specific fields.
+- [x] BFF has a cohesive `BookingProvider` interface or small provider interfaces for routes, calendar, availability, ancillaries, and booking.
+- [x] `MockBookingApi` is renamed, wrapped, or replaced as a mock provider adapter.
+- [x] Provider selection happens through Laravel configuration and dependency injection.
+- [x] Frontend code never receives provider-specific fields.
 
 **Verification:**
 
-- [ ] BFF tests run controller assertions against the mock provider.
-- [ ] Provider failures normalize into platform error responses.
+- [x] BFF tests run controller assertions against the mock provider.
+- [x] Provider failures normalize into platform error responses.
 - [ ] `rg "Encore|provider" apps/web/src` confirms provider details do not leak into frontend code.
 
 **Dependencies:** Task H4.
@@ -551,7 +551,7 @@ Provider-to-domain mapping targets:
 - [ ] `BOOKING_API_MODE=mock` remains default for local development.
 - [ ] External mode uses configured base URL, headers, timeout, and auth if available.
 - [ ] Provider errors map to stable BFF error responses without leaking secrets.
-- [ ] Existing `MockBookingApi` responsibilities are either extended or replaced cleanly.
+- [x] Existing `MockBookingApi` responsibilities are either extended or replaced cleanly.
 
 **Verification:**
 
@@ -562,7 +562,8 @@ Provider-to-domain mapping targets:
 
 **Files likely touched:**
 
-- `apps/bff/app/Services/MockBookingApi.php`
+- `apps/bff/app/Services/Contracts/BookingProvider.php`
+- `apps/bff/app/Services/MockBookingProvider.php`
 - `apps/bff/app/Services/*`
 - `apps/bff/config/booking.php`
 - `apps/bff/tests/Feature/*`
