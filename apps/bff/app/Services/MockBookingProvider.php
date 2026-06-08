@@ -2,15 +2,21 @@
 
 namespace App\Services;
 
+use App\Services\Contracts\BookingProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class MockBookingApi
+class MockBookingProvider implements BookingProvider
 {
+    public function experienceProfile(string $experienceId): array
+    {
+        return $this->readJson("customers/{$experienceId}/profile.json");
+    }
+
     public function tenantConfig(string $tenantId): array
     {
-        return $this->readJson("tenants/{$tenantId}/config.json");
+        return $this->experienceProfile($tenantId);
     }
 
     public function searchFlights(array $criteria, string $tenantId = 'skywing'): array
@@ -31,6 +37,29 @@ class MockBookingApi
 
                 return $flight;
             })
+            ->all();
+
+        return $response;
+    }
+
+    public function flightRoutes(): array
+    {
+        return $this->readJson('platform/routes.json');
+    }
+
+    public function lowFareCalendar(array $criteria): array
+    {
+        return $this->readJson('platform/low-fare-calendar.json');
+    }
+
+    public function flightOffers(array $search, string $bound): array
+    {
+        $response = $this->readJson('platform/availability.json');
+        $response['search'] = $search;
+        $response['bound'] = $bound;
+        $response['flights'] = collect($response['flights'])
+            ->filter(fn (array $flight): bool => $flight['bound'] === $bound)
+            ->values()
             ->all();
 
         return $response;

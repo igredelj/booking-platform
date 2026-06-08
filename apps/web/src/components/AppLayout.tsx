@@ -1,18 +1,19 @@
-import type { TenantConfig } from '@eebkg/config-schema';
+import type { ExperienceProfile } from '@eebkg/config-schema';
 import { Link, Outlet, useLocation } from 'react-router';
-import { stepLabels, stepRoutes } from '../app/steps';
 import { useAppSelector } from '../app/hooks';
-import { isStepAvailable } from '../features/booking/selectors';
+import { useExperienceComposition } from '../app/compositionContext';
 
 interface AppLayoutProps {
-  config: TenantConfig;
+  profile: ExperienceProfile;
 }
 
-export const AppLayout = ({ config }: AppLayoutProps) => {
+export const AppLayout = ({ profile }: AppLayoutProps) => {
   const location = useLocation();
-  const booking = useAppSelector((state) => state);
-  const isSearchPage = location.pathname === '/search';
-  const isFullBleedFlowPage = isSearchPage || location.pathname === '/flights';
+  const composition = useExperienceComposition();
+  const booking = useAppSelector((state) => state.booking);
+  const isSearchPage = location.pathname === composition.stepRoutes.search;
+  const currentRoute = composition.routes.find((route) => route.path === location.pathname);
+  const isFullBleedFlowPage = Boolean(currentRoute?.fullBleed);
 
   return (
     <div className="app-shell">
@@ -20,12 +21,16 @@ export const AppLayout = ({ config }: AppLayoutProps) => {
         Skip to booking content
       </a>
       <header className="site-header">
-        <Link className="brand" to="/search" aria-label={`${config.brand.name} booking home`}>
-          <img src={config.brand.logo} alt="" width="40" height="40" />
-          <span>{config.brand.name}</span>
+        <Link
+          className="brand"
+          to={composition.stepRoutes.search}
+          aria-label={`${profile.brand.name} booking home`}
+        >
+          <img src={profile.brand.logo} alt="" width="40" height="40" />
+          <span>{profile.brand.name}</span>
         </Link>
         <nav className="site-nav" aria-label="Primary">
-          <Link aria-current={isSearchPage ? 'page' : undefined} to="/search">
+          <Link aria-current={isSearchPage ? 'page' : undefined} to={composition.stepRoutes.search}>
             Book
           </Link>
           <a href="#main-content">Manage</a>
@@ -41,9 +46,9 @@ export const AppLayout = ({ config }: AppLayoutProps) => {
       <div className="booking-frame" data-search-layout={isFullBleedFlowPage}>
         <aside className="flow-panel" aria-label="Booking progress" hidden={isFullBleedFlowPage}>
           <ol className="step-list">
-            {config.bookingFlow.map((step, index) => {
-              const route = stepRoutes[step];
-              const available = isStepAvailable(booking, step);
+            {composition.steps.map((step, index) => {
+              const route = composition.stepRoutes[step];
+              const available = composition.canEnterStep(booking, step);
               const current = location.pathname === route;
 
               return (
@@ -62,7 +67,7 @@ export const AppLayout = ({ config }: AppLayoutProps) => {
                     }}
                   >
                     <span className="step-index">{index + 1}</span>
-                    <span>{stepLabels[step]}</span>
+                    <span>{composition.stepLabels[step]}</span>
                   </Link>
                 </li>
               );

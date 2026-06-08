@@ -1,0 +1,52 @@
+{
+  "identity": {
+    "customerId": "acme-air",
+    "experienceId": "acme-air-default",
+    "displayName": "Acme Air"
+  },
+  "brand": {
+    "name": "Acme Air",
+    "logo": "/tenants/acme-air/logo.svg"
+  },
+  "theme": {
+    "colors": {
+      "primary": "#0057A8",
+      "primaryText": "#FFFFFF",
+      "background": "#F7F9FC",
+      "surface": "#FFFFFF",
+      "border": "#CBD5E1",
+      "text": "#111827",
+      "mutedText": "#475569",
+      "accent": "#0F766E",
+      "danger": "#B91C1C"
+    },
+    "radius": "6px",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  },
+  "content": {
+    "locale": "en-US",
+    "currency": "EUR"
+  },
+  "features": {
+    "seniorPassenger": true,
+    "ancillaries": true,
+    "promoCode": false
+  },
+  "composition": {
+    "id": "bravo-smart-trip-builder",
+    "steps": [
+      "search",
+      "flight-selection",
+      "fare-selection",
+      "passenger-details",
+      "extras",
+      "review",
+      "payment",
+      "confirmation"
+    ]
+  },
+  "provider": {
+    "id": "mock"
+  },
+  "runtime": {}
+}

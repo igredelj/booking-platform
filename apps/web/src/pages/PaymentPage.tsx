@@ -19,7 +19,16 @@ export const PaymentPage = () => {
   const { register, handleSubmit, formState } = useForm<PaymentFormValues>();
 
   const onSubmit = async (values: PaymentFormValues) => {
-    const response = await confirmBooking({ booking, payment: values });
+    const response = await confirmBooking({
+      booking: {
+        search: booking.search,
+        outboundFlightId: booking.selection.outboundOfferId,
+        inboundFlightId: booking.selection.returnOfferId,
+        fareId: booking.selection.fareBundleId,
+        reviewed: booking.status === 'reviewed',
+      },
+      payment: values,
+    });
     dispatch(completePayment(response.confirmationCode));
     navigate('/confirmation');
   };

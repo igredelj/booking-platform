@@ -1,0 +1,52 @@
+{
+  "identity": {
+    "customerId": "skyline",
+    "experienceId": "skyline-default",
+    "displayName": "Skyline"
+  },
+  "brand": {
+    "name": "Skyline",
+    "logo": "/tenants/skyline/logo.svg"
+  },
+  "theme": {
+    "colors": {
+      "primary": "#316B4F",
+      "primaryText": "#FFFFFF",
+      "background": "#F4F7F4",
+      "surface": "#FFFFFF",
+      "border": "#B7C7BC",
+      "text": "#102018",
+      "mutedText": "#4D6358",
+      "accent": "#7C3AED",
+      "danger": "#B42318"
+    },
+    "radius": "4px",
+    "fontFamily": "Arial, system-ui, sans-serif"
+  },
+  "content": {
+    "locale": "en-GB",
+    "currency": "EUR"
+  },
+  "features": {
+    "seniorPassenger": false,
+    "ancillaries": true,
+    "promoCode": true
+  },
+  "composition": {
+    "id": "bravo-smart-trip-builder",
+    "steps": [
+      "search",
+      "flight-selection",
+      "fare-selection",
+      "passenger-details",
+      "extras",
+      "review",
+      "payment",
+      "confirmation"
+    ]
+  },
+  "provider": {
+    "id": "mock"
+  },
+  "runtime": {}
+}

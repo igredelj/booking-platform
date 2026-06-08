@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\MockBookingApi;
+use App\Services\Contracts\BookingProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FlightSearchController extends Controller
 {
-    public function __invoke(Request $request, MockBookingApi $api): JsonResponse
+    public function __invoke(Request $request, BookingProvider $provider): JsonResponse
     {
         $criteria = $request->validate([
             'origin' => ['required', 'string', 'max:8'],
@@ -21,6 +21,6 @@ class FlightSearchController extends Controller
             'passengers.senior' => ['required', 'integer', 'min:0'],
         ]);
 
-        return response()->json($api->searchFlights($criteria, $request->header('X-Tenant-Id', 'skywing')));
+        return response()->json($provider->searchFlights($criteria, $request->header('X-Tenant-Id', 'skywing')));
     }
 }

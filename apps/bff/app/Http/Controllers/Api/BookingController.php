@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\MockBookingApi;
+use App\Services\Contracts\BookingProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    public function __invoke(Request $request, MockBookingApi $api): JsonResponse
+    public function __invoke(Request $request, BookingProvider $provider): JsonResponse
     {
         $payload = $request->validate([
             'booking.search.origin' => ['required', 'string'],
@@ -24,6 +24,6 @@ class BookingController extends Controller
             'payment.cvc' => ['required', 'string'],
         ]);
 
-        return response()->json($api->confirm($payload));
+        return response()->json($provider->confirm($payload));
     }
 }

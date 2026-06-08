@@ -1,15 +1,16 @@
-import type { TenantConfig } from '@eebkg/config-schema';
+import type { ExperienceProfile } from '@eebkg/config-schema';
 import { ArrowLeftRight, CalendarDays, MapPin, Plane, Search, UsersRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { useAppDispatch } from '../app/hooks';
-import { setSearch, type SearchCriteria } from '../features/booking/bookingSlice';
+import { setSearch } from '../features/booking/bookingSlice';
+import type { SearchCriteria } from '@eebkg/config-schema';
 
 interface SearchPageProps {
-  config: TenantConfig;
+  profile: ExperienceProfile;
 }
 
-export const SearchPage = ({ config }: SearchPageProps) => {
+export const SearchPage = ({ profile }: SearchPageProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { register, handleSubmit, formState, getValues, setValue } = useForm<SearchCriteria>({
@@ -18,11 +19,14 @@ export const SearchPage = ({ config }: SearchPageProps) => {
       destination: 'AMS',
       departureDate: '2026-06-20',
       returnDate: '2026-06-27',
+      tripType: 'round-trip',
       passengers: {
         adult: 1,
         child: 0,
         senior: 0,
       },
+      directOnly: false,
+      flexibleDates: false,
     },
   });
 
@@ -49,11 +53,11 @@ export const SearchPage = ({ config }: SearchPageProps) => {
 
           <div className="trip-toggle" role="radiogroup" aria-label="Trip type">
             <label>
-              <input type="radio" name="tripType" defaultChecked />
+              <input type="radio" value="round-trip" {...register('tripType')} />
               <span>Round trip</span>
             </label>
             <label>
-              <input type="radio" name="tripType" />
+              <input type="radio" value="one-way" {...register('tripType')} />
               <span>One way</span>
             </label>
           </div>
@@ -119,7 +123,7 @@ export const SearchPage = ({ config }: SearchPageProps) => {
                   Children
                   <input type="number" min="0" {...register('passengers.child', { valueAsNumber: true, min: 0 })} />
                 </label>
-                {config.features.seniorPassenger ? (
+                {profile.features.seniorPassenger ? (
                   <label>
                     Seniors
                     <input type="number" min="0" {...register('passengers.senior', { valueAsNumber: true, min: 0 })} />

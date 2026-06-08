@@ -10,11 +10,14 @@ export const ExtrasPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [ancillaries, setAncillaries] = useState<AncillaryOption[]>([]);
-  const [selectedExtras, setSelectedExtras] = useState<string[]>(booking.extras);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>(booking.selection.ancillaryIds);
 
   useEffect(() => {
-    fetchAncillaries(booking).then((response) => setAncillaries(response.ancillaries));
-  }, [booking]);
+    fetchAncillaries({
+      fareId: booking.selection.fareBundleId,
+      passengersComplete: booking.status === 'passengers_complete',
+    }).then((response) => setAncillaries(response.ancillaries));
+  }, [booking.selection.fareBundleId, booking.status]);
 
   const toggleExtra = (id: string) => {
     setSelectedExtras((current) => (current.includes(id) ? current.filter((extraId) => extraId !== id) : [...current, id]));
